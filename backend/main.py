@@ -1,16 +1,21 @@
 """FastAPI app: JSON API under /api, static frontend at /."""
 from __future__ import annotations
 
+import csv
+import io
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .config import DATA_DIR, FRONTEND_DIR, get_config, load_env_file, reload_config
 from .db import Database, now_ts
+from .evaluation import accuracy_report
 from .providers import prices
 from .refresh import RefreshManager
 from .services import Snapshot
@@ -145,6 +150,33 @@ def settings_view(request: Request):
         "analysis": request.app.state.refresh.analysis_status(),
         "stock_count": {m: sum(s.market == m for s in cfg.stocks) for m in ("TW", "US")},
     }
+
+
+# ── track record ─────────────────────────────────────────────────────────────
+@app.get("/api/accuracy")
+def accuracy(request: Request):
+    return accuracy_report(request.app.state.db, get_config(), now_ts())
+
+
+EXPORT_COLUMNS = [
+    "ticker", "market", "day", "created_at_utc", "price", "predicted_price", "expected_return", "news_return",
+    "valuation_return", "outlook", "engine", "algo_version", "article_ids", "horizon", "base_day", "base_close",
+    "end_day", "end_close", "realized_return", "benchmark_return", "excess_return",
+]
+
+
+@app.get("/api/accuracy/export.csv")
+def accuracy_export(request: Request):
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=EXPORT_COLUMNS, extrasaction="ignore")
+    writer.writeheader()
+    for r in request.app.state.db.export_rows():
+        r["created_at_utc"] = datetime.fromtimestamp(r["created_at"], tz=timezone.utc).isoformat()
+        if r["realized_return"] is not None and r["benchmark_return"] is not None:
+            r["excess_return"] = r["realized_return"] - r["benchmark_return"]
+        writer.writerow(r)
+    return Response(buf.getvalue(), media_type="text/csv",
+                    headers={"Content-Disposition": 'attachment; filename="prediction-track-record.csv"'})
 
 
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

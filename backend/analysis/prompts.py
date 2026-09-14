@@ -8,6 +8,9 @@ from datetime import datetime, timezone
 
 from ..config import AppConfig, Stock
 
+# Bump whenever prompt wording changes, so the track record can compare versions.
+PROMPT_VERSION = "2026-09-14.1"
+
 SYSTEM_TEMPLATE = """\
 You are the research engine behind AI Stock Radar, an app that tracks Taiwan AI-hardware suppliers and US niche AI-software companies. Your job is to read real news and estimate how each item changes a company's fair value over the next ~{horizon} days. The app turns your estimates into a predicted price that the user reads directly, so the numbers need to be honest and calibrated.
 

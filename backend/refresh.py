@@ -12,6 +12,7 @@ from .config import AppConfig, Stock, get_config
 from .db import INDUSTRY, Database, now_ts
 from .providers import NEWS_PROVIDERS
 from .providers import prices
+from .evaluation import evaluate, record_snapshots
 from .services import record_predictions
 
 log = logging.getLogger(__name__)
@@ -94,8 +95,12 @@ class RefreshManager:
             self._phase("analysis")
             self._analyze(stats)
             self._phase("predictions")
-            stats["prediction_updates"] = record_predictions(self.db, self.cfg, now_ts())
+            now = now_ts()
+            stats["prediction_updates"] = record_predictions(self.db, self.cfg, now)
+            stats["snapshots"] = record_snapshots(self.db, self.cfg, now)
             self._bump()
+            self._phase("evaluation")
+            self._evaluate(stats)
         except Exception as e:  # keep the app alive; surface the error in the UI
             log.exception("Refresh failed")
             status, error = "error", str(e)
@@ -105,6 +110,19 @@ class RefreshManager:
                 self.status.update(running=False, phase=None, finished_at=now_ts(),
                                    last_status=status, last_error=error, stats=stats)
             log.info("Refresh (%s) finished: %s %s", reason, status, stats)
+
+    def _evaluate(self, stats: dict) -> None:
+        """Score matured predictions. Runs every few hours; failures never break the refresh."""
+        interval = self.cfg.settings.evaluation.interval_hours * 3600
+        if time.time() - (self.db.get_pref("last_evaluation_at", 0) or 0) < interval:
+            return
+        try:
+            stats["evaluation"] = evaluate(self.db, self.cfg, now_ts())
+            self.db.set_pref("last_evaluation_at", now_ts())
+            self._bump()
+        except Exception as e:
+            log.exception("Evaluation failed")
+            self._warn(f"Scoring past predictions failed: {e}")
 
     def _phase(self, name: str) -> None:
         self.status["phase"] = name

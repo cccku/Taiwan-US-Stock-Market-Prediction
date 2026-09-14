@@ -6,6 +6,7 @@ import math
 import threading
 import time
 from bisect import bisect_right
+from datetime import datetime, timezone
 
 import yfinance as yf
 
@@ -92,6 +93,28 @@ def fetch_history(ticker: str, range_key: str = "3M") -> list[dict]:
         ]
 
     return _cached(("hist", ticker, range_key), HISTORY_TTL, load) or []
+
+
+MARKET_CLOSE_HOURS = {"TW": 13.5, "US": 16.0}  # local closing time
+
+
+def fetch_daily_closes(ticker: str, start_ts: int, market: str) -> list[dict]:
+    """Dividend/split-adjusted daily closes since start_ts. Each bar is stamped with its
+    closing time (`t`), so callers can tell which close came after a given moment."""
+    start = datetime.fromtimestamp(start_ts, tz=timezone.utc).strftime("%Y-%m-%d")
+    offset = int(MARKET_CLOSE_HOURS.get(market, 16.0) * 3600)
+
+    def load():
+        hist = yf.Ticker(ticker).history(start=start, interval="1d", auto_adjust=True)
+        if hist is None or hist.empty:
+            return []
+        return [
+            {"day": idx.strftime("%Y-%m-%d"), "t": int(idx.normalize().timestamp()) + offset, "c": float(row["Close"])}
+            for idx, row in hist.iterrows()
+            if not math.isnan(row["Close"])
+        ]
+
+    return _cached(("daily", ticker, start), 1800, load) or []
 
 
 def close_on_or_before(ticker: str, ts: int) -> float | None:

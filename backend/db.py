@@ -67,6 +67,27 @@ CREATE TABLE IF NOT EXISTS predictions (
     signature TEXT, note TEXT, trigger_articles TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_predictions_ticker ON predictions(ticker, created_at);
+-- Track record: one frozen prediction per stock per market day.
+CREATE TABLE IF NOT EXISTS prediction_snapshots (
+    ticker TEXT NOT NULL, day TEXT NOT NULL, market TEXT NOT NULL,
+    created_at INTEGER NOT NULL, price REAL NOT NULL,
+    predicted_price REAL, expected_return REAL NOT NULL,
+    news_return REAL, valuation_return REAL, outlook TEXT, horizon_days INTEGER,
+    engine TEXT, article_ids TEXT, algo_version TEXT,
+    PRIMARY KEY (ticker, day)
+);
+CREATE TABLE IF NOT EXISTS prediction_outcomes (
+    ticker TEXT NOT NULL, day TEXT NOT NULL, horizon INTEGER NOT NULL,   -- horizon in trading days
+    base_day TEXT, base_close REAL, end_day TEXT, end_close REAL,
+    realized_return REAL NOT NULL, benchmark_return REAL, evaluated_at INTEGER NOT NULL,
+    PRIMARY KEY (ticker, day, horizon)
+);
+CREATE TABLE IF NOT EXISTS news_outcomes (
+    article_id TEXT NOT NULL, ticker TEXT NOT NULL, engine TEXT NOT NULL, horizon INTEGER NOT NULL,
+    impact_pct REAL NOT NULL, confidence REAL, severity TEXT, category TEXT, published_at INTEGER,
+    realized_return REAL NOT NULL, benchmark_return REAL, evaluated_at INTEGER NOT NULL,
+    PRIMARY KEY (article_id, ticker, engine, horizon)
+);
 CREATE TABLE IF NOT EXISTS prefs (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS refresh_runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -263,6 +284,89 @@ class Database:
                 "SELECT * FROM predictions WHERE ticker=? AND created_at>=? ORDER BY created_at", (ticker, since))]
 
     # ── prefs ────────────────────────────────────────────────────────────────
+    # ── track record ─────────────────────────────────────────────────────────
+    def upsert_snapshot(self, row: dict) -> None:
+        """Later refreshes on the same market day overwrite that day's row; past days never change."""
+        cols = list(row)
+        updates = ", ".join(f"{k}=excluded.{k}" for k in cols if k not in ("ticker", "day"))
+        with self.write() as c:
+            c.execute(
+                f"INSERT INTO prediction_snapshots ({', '.join(cols)}) VALUES ({', '.join(':' + k for k in cols)}) "
+                f"ON CONFLICT(ticker, day) DO UPDATE SET {updates}",
+                row,
+            )
+
+    def snapshots_missing_outcome(self, horizon: int, since: int) -> list[dict]:
+        with self.connect() as c:
+            return [dict(r) for r in c.execute(
+                """SELECT s.* FROM prediction_snapshots s
+                   WHERE s.created_at >= ? AND NOT EXISTS (SELECT 1 FROM prediction_outcomes o
+                     WHERE o.ticker = s.ticker AND o.day = s.day AND o.horizon = ?)""", (since, horizon))]
+
+    def outcome_keys(self) -> set[tuple]:
+        with self.connect() as c:
+            return {tuple(r) for r in c.execute("SELECT ticker, day, horizon FROM prediction_outcomes")}
+
+    def add_outcomes(self, rows: list[dict]) -> None:
+        if not rows:
+            return
+        with self.write() as c:
+            c.executemany(
+                """INSERT OR IGNORE INTO prediction_outcomes VALUES (:ticker, :day, :horizon, :base_day, :base_close,
+                   :end_day, :end_close, :realized_return, :benchmark_return, :evaluated_at)""", rows)
+
+    def analyses_missing_news_outcome(self, horizon: int, min_abs_impact: float, since: int) -> list[dict]:
+        with self.connect() as c:
+            return [dict(r) for r in c.execute(
+                """SELECT an.article_id, an.ticker, an.engine, an.impact_pct, an.confidence, an.severity,
+                          an.category, a.published_at
+                   FROM analyses an JOIN articles a ON a.id = an.article_id
+                   WHERE ABS(an.impact_pct) >= ? AND a.published_at >= ? AND NOT EXISTS (
+                     SELECT 1 FROM news_outcomes o WHERE o.article_id = an.article_id AND o.ticker = an.ticker
+                       AND o.engine = an.engine AND o.horizon = ?)""", (min_abs_impact, since, horizon))]
+
+    def news_outcome_keys(self) -> set[tuple]:
+        with self.connect() as c:
+            return {tuple(r) for r in c.execute("SELECT article_id, ticker, engine, horizon FROM news_outcomes")}
+
+    def add_news_outcomes(self, rows: list[dict]) -> None:
+        if not rows:
+            return
+        with self.write() as c:
+            c.executemany(
+                """INSERT OR IGNORE INTO news_outcomes VALUES (:article_id, :ticker, :engine, :horizon, :impact_pct,
+                   :confidence, :severity, :category, :published_at, :realized_return, :benchmark_return,
+                   :evaluated_at)""", rows)
+
+    def snapshot_outcome_rows(self) -> list[dict]:
+        with self.connect() as c:
+            return [dict(r) for r in c.execute(
+                """SELECT s.ticker, s.market, s.day, s.created_at, s.price, s.expected_return, s.engine,
+                          s.algo_version, o.horizon, o.base_day, o.end_day, o.realized_return, o.benchmark_return
+                   FROM prediction_snapshots s JOIN prediction_outcomes o USING (ticker, day)""")]
+
+    def news_outcome_rows(self) -> list[dict]:
+        with self.connect() as c:
+            return [dict(r) for r in c.execute("SELECT * FROM news_outcomes")]
+
+    def snapshot_stats(self) -> dict:
+        with self.connect() as c:
+            r = c.execute("""SELECT COUNT(*), MIN(day), MIN(created_at), MAX(created_at), COUNT(DISTINCT ticker)
+                             FROM prediction_snapshots""").fetchone()
+            versions = [dict(v) for v in c.execute(
+                """SELECT algo_version AS version, COUNT(*) AS snapshots, MIN(day) AS first_day, MAX(day) AS last_day
+                   FROM prediction_snapshots GROUP BY algo_version ORDER BY MIN(created_at)""")]
+        return {"snapshots": r[0], "first_day": r[1], "first_created_at": r[2], "last_created_at": r[3],
+                "stocks": r[4], "versions": versions}
+
+    def export_rows(self) -> list[dict]:
+        with self.connect() as c:
+            return [dict(r) for r in c.execute(
+                """SELECT s.*, o.horizon, o.base_day, o.base_close, o.end_day, o.end_close,
+                          o.realized_return, o.benchmark_return
+                   FROM prediction_snapshots s LEFT JOIN prediction_outcomes o USING (ticker, day)
+                   ORDER BY s.day, s.ticker, o.horizon""")]
+
     def get_pref(self, key: str, default: Any = None) -> Any:
         with self.connect() as c:
             r = c.execute("SELECT value FROM prefs WHERE key=?", (key,)).fetchone()

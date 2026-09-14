@@ -41,3 +41,12 @@ prediction:
   valuation_weight: 0            # >0 pulls toward analyst consensus target (e.g. 0.25); 0 = news only
   valuation_cap: 0.15
   neutral_band: 0.01             # |expected move| below 1% is shown as "neutral"
+
+evaluation:
+  # Track record: each stock's prediction is snapshotted once per market day and scored later
+  # against the real (dividend-adjusted) price, relative to the market index.
+  benchmarks: {TW: "^TWII", US: "^GSPC"}   # TAIEX, S&P 500
+  horizons_trading_days: [5, 21, 63]       # 1 week, 1 month, ~3 months (the prediction horizon)
+  news_horizons_trading_days: [1, 5]       # quick check of each news item's estimated direction
+  news_min_abs_impact_pct: 1.0             # only score news items that claimed a real effect
+  interval_hours: 6                        # how often to fetch prices and score matured predictions

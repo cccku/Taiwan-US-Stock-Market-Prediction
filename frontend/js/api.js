@@ -26,6 +26,7 @@ export const api = {
   news: (filters) => request('GET', `/api/news${qs(filters)}`),
   supplyChain: () => request('GET', '/api/supply-chain'),
   settings: () => request('GET', '/api/settings'),
+  accuracy: () => request('GET', '/api/accuracy'),
   putPrefs: (patch) => request('PUT', '/api/prefs', patch),
   reloadConfig: () => request('POST', '/api/config/reload'),
 };

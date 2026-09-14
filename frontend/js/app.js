@@ -6,6 +6,7 @@ import * as stock from './views/stock.js';
 import * as news from './views/news.js';
 import * as supply from './views/supply.js';
 import * as settings from './views/settings.js';
+import * as track from './views/accuracy.js';
 
 const root = document.getElementById('app');
 const statusEl = document.getElementById('refresh-status');
@@ -14,6 +15,7 @@ const ROUTES = [
   { re: /^#?\/?$/, view: dashboard, nav: 'dashboard', params: () => ({}) },
   { re: /^#\/stock\/(.+)$/, view: stock, nav: 'dashboard', params: (m) => ({ ticker: decodeURIComponent(m[1]) }) },
   { re: /^#\/news$/, view: news, nav: 'news', params: () => ({}) },
+  { re: /^#\/track-record$/, view: track, nav: 'track', params: () => ({}) },
   { re: /^#\/supply-chain$/, view: supply, nav: 'supply', params: () => ({}) },
   { re: /^#\/settings$/, view: settings, nav: 'settings', params: () => ({}) },
 ];
@@ -49,6 +51,7 @@ function route() {
 const PHASE_TEXT = {
   starting: 'Starting refresh', prices: 'Fetching prices', fundamentals: 'Updating valuations',
   news: 'Collecting news', analysis: 'Analyzing news impact', predictions: 'Updating predictions',
+  evaluation: 'Scoring past predictions',
 };
 let lastStatus = null;
 let lastVersion = null;

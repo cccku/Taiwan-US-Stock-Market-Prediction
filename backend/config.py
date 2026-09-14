@@ -64,12 +64,21 @@ class PredictionSettings(BaseModel):
     neutral_band: float = 0.01
 
 
+class EvaluationSettings(BaseModel):
+    benchmarks: dict[str, str] = {"TW": "^TWII", "US": "^GSPC"}
+    horizons_trading_days: list[int] = [5, 21, 63]
+    news_horizons_trading_days: list[int] = [1, 5]
+    news_min_abs_impact_pct: float = 1.0
+    interval_hours: float = 6
+
+
 class Settings(BaseModel):
     server: ServerSettings = ServerSettings()
     refresh: RefreshSettings = RefreshSettings()
     news: NewsSettings = NewsSettings()
     analysis: AnalysisSettings = AnalysisSettings()
     prediction: PredictionSettings = PredictionSettings()
+    evaluation: EvaluationSettings = EvaluationSettings()
 
 
 # ── watchlist.yaml ───────────────────────────────────────────────────────────

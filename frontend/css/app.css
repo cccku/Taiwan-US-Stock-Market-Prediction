@@ -261,6 +261,23 @@ svg.chain-lines path.demand { stroke-dasharray: 4 4; }
 svg.chain-lines path.hl { stroke: var(--accent); stroke-width: 2; }
 svg.chain-lines path.faded { opacity: .25; }
 
+/* ── track record ───────────────────────────────────────────────────────── */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 960px) { .grid-3 { grid-template-columns: 1fr; } }
+.metric-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.metric-big { font-size: 34px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; margin-top: 4px; }
+.verdict { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; border: 1px solid currentColor; }
+.verdict.beating { color: var(--pos); }
+.verdict.worse { color: var(--neg); }
+.verdict.unclear { color: var(--muted); }
+.verdict.pending { color: var(--muted); border-style: dashed; }
+.kv.compact { grid-template-columns: 1fr auto; font-size: 13px; gap: 4px 12px; margin-top: 8px; }
+.kv.compact dd { text-align: right; font-variant-numeric: tabular-nums; }
+.good { color: var(--pos); }
+.bad { color: var(--neg); }
+.table-scroll { overflow-x: auto; }
+.log td.num, .log th.num { text-align: right; }
+
 /* ── settings ───────────────────────────────────────────────────────────── */
 .kv { display: grid; grid-template-columns: 180px 1fr; gap: 6px 14px; margin: 0; }
 .kv dt { color: var(--muted); }

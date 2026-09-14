@@ -25,6 +25,7 @@ The first run creates `.venv` and installs dependencies (it works even without U
 | **Dashboard** | Every stock with its current price (colored by today's move) and predicted price (separate color scheme). Filters at top right: market, industry, price move/outlook, sort. ★ favorites pin to the top, and you can drag them to reorder. A critical-news banner appears when something serious happens. |
 | **Stock details** | Current and predicted price, a simple chart (price, past predictions, dashed projection), why the prediction is what it is, the three pillars, demand & supply position, key numbers, and every analyzed news item in a colored frame: **green = raises**, **red = lowers**, **grey = ≈ no change**. Also a log of every news-driven prediction change. |
 | **News Hub** | All analyzed news ranked by impact score, with per-company impact chips. |
+| **Track Record** | How accurate past predictions turned out to be, measured against the market index, plus a check of each news item's estimated direction. CSV export. |
 | **Supply Chain** | Who supplies whom across the watchlist, from EDA and materials through chips, servers and cloud to AI software and end demand. |
 | **Method & Settings** | Engine status and token usage, the color legend (includes a "red = up" Taiwan-style toggle), the full methodology, and how to add stocks. |
 
@@ -50,6 +51,22 @@ The app refreshes when opened, then every 5 minutes while open (`config/settings
 **Impact score (News Hub ranking)** = `|impact %| × confidence × (1 − priced in) × recency fade × severity weight`. Severity weights are low 1.0, moderate 1.2, major 1.5 and critical 2.5. An article that affects several companies scores its largest impact plus 25% of the rest.
 
 **Pillars.** Leadership and Product start from a baseline in `watchlist.yaml` and move with relevant news. Price is computed live from upside to the analyst target, forward P/E versus growth, and position in the 52-week range.
+
+## Track record: is the algorithm any good?
+
+- **Recording.** Every refresh snapshots each stock's prediction: price, expected move, contributing article IDs, engine and an algorithm version. The version is a hash of the prediction settings, model, effort and `PROMPT_VERSION`. There's one row per market day, and a day's row is frozen once that day ends.
+- **Scoring.** Every 6 hours, predictions that have matured are scored after 5, 21 and 63 trading days.
+  - The return is dividend-adjusted and measured from the **first close after the prediction was made**, so the model gets no credit for moves you couldn't have traded.
+  - It's compared with the market index over the same window (TAIEX or S&P 500).
+  - News items claiming an effect of at least 1% are also scored 1 and 5 trading days after publication. That tests the analysis engine within days instead of months.
+- **Metrics** (Track Record page, `GET /api/accuracy`, CSV at `/api/accuracy/export.csv`):
+  - Direction hit rate against the market, with a 95% range. The range is widened because daily snapshots overlap.
+  - Compared with a baseline of always guessing the more common direction.
+  - "Up picks minus down picks" return spread and daily rank correlation (IC).
+  - Error vs. assuming no change, and calibration buckets.
+  - Breakdowns by market, engine and algorithm version.
+
+Settings are under `evaluation:` in `config/settings.yaml`. Meaningful 1-week results need a few weeks of data, and 3-month results need months.
 
 ## The watchlist
 
