@@ -1,0 +1,339 @@
+# Watchlist — the only file you need to edit to add or remove a stock.
+#
+# Required per stock:
+#   ticker      Yahoo Finance symbol (TWSE: 2330.TW, TPEx: 5274.TWO, US: PLTR)
+#   name        display name;  name_local optional (e.g. Chinese name)
+#   market      TW | US
+#   segment     a key under `segments` in industry.yaml
+#   thesis      why it's on the list: niche, demand, supply, leadership, product
+#   pillars     baseline 0-10 scores for leadership and product (news adjusts them;
+#               the price pillar is computed from live valuation data)
+#   keywords    words that must appear for a search result to count as about this company
+#   news_queries  Google News searches (lang: en | zh)
+# Then add supply-chain links for it in industry.yaml.
+#
+# Baseline pillar scores were set when this list was written (Sept 2026) and are
+# a starting point only; they are not investment advice.
+
+stocks:
+  # ───────────────────────── Taiwan: AI servers, datacenter hardware & materials ─────────────────────────
+  - ticker: "2330.TW"
+    name: TSMC
+    name_local: 台積電
+    market: TW
+    segment: foundry
+    thesis:
+      niche: Leading-edge foundry plus CoWoS advanced packaging used by nearly every AI accelerator.
+      demand: NVIDIA, AMD, Broadcom and hyperscaler custom-ASIC programs; follows hyperscaler AI capex.
+      supply: Needs ASML lithography, substrates and chemicals, and reliable power and water in Taiwan. Advanced packaging capacity is the bottleneck.
+      leadership: Disciplined capital allocation and roadmap execution with conservative guidance.
+      product: Process and packaging leadership with high yields; customer switching costs are very high.
+    pillars: {leadership: 9, product: 10}
+    keywords: [TSMC, 台積電, Taiwan Semiconductor, 台積]
+    news_queries:
+      - {q: "TSMC", lang: en}
+      - {q: "台積電", lang: zh}
+
+  - ticker: "2317.TW"
+    name: Hon Hai (Foxconn)
+    name_local: 鴻海
+    market: TW
+    segment: server_odm
+    thesis:
+      niche: Largest electronics manufacturer, now building GPU compute trays and full AI server racks at scale.
+      demand: Hyperscalers and NVIDIA rack-scale system programs.
+      supply: Depends on GPU allocation from NVIDIA and on power, cooling and networking parts. Assembly margins are thin.
+      leadership: Management is steering the group from consumer electronics toward AI servers, EVs and semis.
+      product: Scale, vertical integration and a global factory footprint (Taiwan, Mexico, US).
+    pillars: {leadership: 7, product: 8}
+    keywords: [Foxconn, Hon Hai, 鴻海]
+    news_queries:
+      - {q: "Foxconn OR \"Hon Hai\"", lang: en}
+      - {q: "鴻海", lang: zh}
+
+  - ticker: "2382.TW"
+    name: Quanta Computer
+    name_local: 廣達
+    market: TW
+    segment: server_odm
+    thesis:
+      niche: Major AI server and rack ODM for US hyperscalers, directly and through its QCT unit.
+      demand: Hyperscaler AI capex and GPU rack-scale platforms.
+      supply: GPU/ASIC allocation plus power and cooling components; notebook business is a low-growth drag.
+      leadership: Long-tenured founder-led management with a steady push into cloud servers.
+      product: Deep engineering relationships with cloud customers on rack design and liquid cooling.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Quanta, 廣達, QCT]
+    news_queries:
+      - {q: "\"Quanta Computer\"", lang: en}
+      - {q: "廣達", lang: zh}
+
+  - ticker: "6669.TW"
+    name: Wiwynn
+    name_local: 緯穎
+    market: TW
+    segment: server_odm
+    thesis:
+      niche: Hyperscaler-focused rack server and storage maker (Wistron group) with custom-ASIC server exposure.
+      demand: A few large cloud customers, which means high customer concentration.
+      supply: ASIC/GPU boards, power and cooling components. Expanding capacity in the US and Mexico.
+      leadership: Focused, execution-oriented team that grew with hyperscale customers.
+      product: Rack-level design capability for custom cloud infrastructure.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Wiwynn, 緯穎]
+    news_queries:
+      - {q: "Wiwynn", lang: en}
+      - {q: "緯穎", lang: zh}
+
+  - ticker: "2308.TW"
+    name: Delta Electronics
+    name_local: 台達電
+    market: TW
+    segment: power_thermal
+    thesis:
+      niche: High-efficiency power supplies, HVDC power shelves and liquid cooling for AI racks, where power density is the bottleneck.
+      demand: Rising power per rack from each GPU generation; hyperscaler datacenter buildouts.
+      supply: Power semiconductors and magnetics. Competes with Lite-On and Vertiv in some segments.
+      leadership: Engineering-driven management with a long record of energy-efficiency leadership.
+      product: Broad portfolio from chip-level power to datacenter infrastructure.
+    pillars: {leadership: 8, product: 9}
+    keywords: [Delta Electronics, 台達電, 台達]
+    news_queries:
+      - {q: "\"Delta Electronics\"", lang: en}
+      - {q: "台達電", lang: zh}
+
+  - ticker: "3017.TW"
+    name: Asia Vital Components (AVC)
+    name_local: 奇鋐
+    market: TW
+    segment: power_thermal
+    thesis:
+      niche: Thermal modules, cold plates and CDUs for high-TDP GPUs as air cooling hits its limit.
+      demand: Liquid-cooling adoption in AI racks, driven by GPU power draw.
+      supply: Copper and aluminum parts plus pumps. Competition from Auras, Cooler Master and Vertiv.
+      leadership: Has executed the move from PC thermal parts to AI server liquid cooling.
+      product: Qualified on major AI rack platforms. Liquid cooling is a fast-changing technology.
+    pillars: {leadership: 7, product: 8}
+    keywords: [Asia Vital, AVC, 奇鋐]
+    news_queries:
+      - {q: "\"Asia Vital Components\"", lang: en}
+      - {q: "奇鋐", lang: zh}
+
+  - ticker: "2345.TW"
+    name: Accton Technology
+    name_local: 智邦
+    market: TW
+    segment: networking
+    thesis:
+      niche: White-box 400G/800G data center switches for hyperscalers. AI clusters need huge scale-out networks.
+      demand: Hyperscaler AI cluster buildouts and the shift to Ethernet for AI back-end networks.
+      supply: Switch ASICs (Broadcom, others) and high-speed PCB materials.
+      leadership: Strong execution with hyperscale customers.
+      product: Leading position in white-box switching at 800G.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Accton, 智邦]
+    news_queries:
+      - {q: "Accton Technology", lang: en}
+      - {q: "智邦", lang: zh}
+
+  - ticker: "5274.TWO"
+    name: ASPEED Technology
+    name_local: 信驊
+    market: TW
+    segment: server_silicon
+    thesis:
+      niche: Dominant supplier of BMC (baseboard management controller) chips found in nearly every server.
+      demand: Server unit shipments; AI racks add more BMCs per rack.
+      supply: Wafers from TSMC. Its fabless model keeps it asset-light.
+      leadership: Small, highly profitable, founder-led team.
+      product: Very high market share with sticky design wins.
+    pillars: {leadership: 8, product: 9}
+    keywords: [ASPEED, 信驊]
+    news_queries:
+      - {q: "ASPEED Technology", lang: en}
+      - {q: "信驊", lang: zh}
+
+  - ticker: "2383.TW"
+    name: Elite Material (EMC)
+    name_local: 台光電
+    market: TW
+    segment: materials
+    thesis:
+      niche: High-end low-loss copper clad laminate (CCL) for AI server boards, GPU baseboards and switch PCBs.
+      demand: Each faster interconnect generation needs lower-loss materials.
+      supply: Copper foil, glass fabric and resin. Capacity expansions in Taiwan, China and SE Asia.
+      leadership: Consistent share gains in high-speed materials.
+      product: Qualified on leading AI accelerator and switch platforms.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Elite Material, EMC, 台光電]
+    news_queries:
+      - {q: "\"Elite Material\"", lang: en}
+      - {q: "台光電", lang: zh}
+
+  - ticker: "3037.TW"
+    name: Unimicron
+    name_local: 欣興
+    market: TW
+    segment: materials
+    thesis:
+      niche: ABF substrates and HDI PCBs used in GPU/ASIC packages.
+      demand: AI accelerator package size and layer count keep rising.
+      supply: Capital-heavy capacity with ABF film supply concentrated at Ajinomoto. The business is cyclical.
+      leadership: Recovering from the post-2022 substrate downcycle.
+      product: Top-tier ABF supplier; competition from Ibiden and Shinko.
+    pillars: {leadership: 7, product: 7}
+    keywords: [Unimicron, 欣興]
+    news_queries:
+      - {q: "Unimicron", lang: en}
+      - {q: "欣興", lang: zh}
+
+  # ───────────────────────── US: niche AI software ─────────────────────────
+  - ticker: PLTR
+    name: Palantir Technologies
+    market: US
+    segment: ai_platform
+    thesis:
+      niche: Ontology-based operational AI (AIP / Foundry / Gotham) that puts LLMs into real decisions, including classified government work few rivals can serve.
+      demand: Defense and government budgets plus enterprise AI adoption.
+      supply: Runs on hyperscaler clouds and third-party LLMs.
+      leadership: Founder-led with strong execution. Stock-based compensation is high and the company draws political controversy.
+      product: Deep workflow lock-in once deployed.
+    pillars: {leadership: 8, product: 9}
+    keywords: [Palantir, PLTR]
+    news_queries:
+      - {q: "Palantir", lang: en}
+
+  - ticker: CDNS
+    name: Cadence Design Systems
+    market: US
+    segment: chip_design_software
+    thesis:
+      niche: EDA software and hardware emulation needed to design every AI chip; a near-duopoly with Synopsys.
+      demand: AI chip design starts at NVIDIA, hyperscaler ASIC teams and startups.
+      supply: Co-optimized with TSMC process nodes. US export controls limit sales to China.
+      leadership: Steady management with a long record of margin expansion.
+      product: Mission-critical tools with very high switching costs, adding AI-driven design automation.
+    pillars: {leadership: 9, product: 9}
+    keywords: [Cadence, CDNS]
+    news_queries:
+      - {q: "\"Cadence Design Systems\"", lang: en}
+
+  - ticker: NET
+    name: Cloudflare
+    market: US
+    segment: edge_network
+    thesis:
+      niche: Global edge network running AI inference close to users (Workers AI), plus tools to control and charge AI crawlers.
+      demand: Developers and enterprises; publishers and AI companies need bot and crawler control.
+      supply: Owns its server and GPU fleet across hundreds of cities.
+      leadership: Founder-led with a product-velocity culture.
+      product: Single global network that bundles security, delivery and compute.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Cloudflare]
+    news_queries:
+      - {q: "Cloudflare", lang: en}
+
+  - ticker: DDOG
+    name: Datadog
+    market: US
+    segment: ai_observability
+    thesis:
+      niche: Unified observability including LLM/AI monitoring for teams running AI in production.
+      demand: Usage-based revenue that grows with cloud and AI workloads; some concentration in AI-native customers.
+      supply: Hyperscaler infrastructure. Competes with cloud-native tools and open source.
+      leadership: Founder-led with a consistent product cadence.
+      product: Broad integrated platform with strong land-and-expand.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Datadog, DDOG]
+    news_queries:
+      - {q: "Datadog", lang: en}
+
+  - ticker: CRWD
+    name: CrowdStrike
+    market: US
+    segment: ai_security
+    thesis:
+      niche: AI-native endpoint, cloud and identity security on one agent, adding agentic SOC automation.
+      demand: Enterprises consolidating security vendors. AI adoption widens the attack surface.
+      supply: Cloud infrastructure. The July 2024 outage showed its operational risk.
+      leadership: Founder-led and handled the 2024 outage recovery credibly.
+      product: Category leader with a large security data moat.
+    pillars: {leadership: 8, product: 9}
+    keywords: [CrowdStrike, CRWD]
+    news_queries:
+      - {q: "CrowdStrike", lang: en}
+
+  - ticker: RBRK
+    name: Rubrik
+    market: US
+    segment: data_security
+    thesis:
+      niche: Cyber resilience that combines immutable backup, data security posture and recovery, extending to rolling back AI-agent actions.
+      demand: Ransomware pressure and enterprise AI data governance.
+      supply: Cloud and on-prem appliances. Competition from Cohesity and Veeam.
+      leadership: Founder-led. Newly public, so its public-market track record is short.
+      product: Differentiated security-first backup architecture.
+    pillars: {leadership: 7, product: 8}
+    keywords: [Rubrik, RBRK]
+    news_queries:
+      - {q: "Rubrik", lang: en}
+
+  - ticker: IOT
+    name: Samsara
+    market: US
+    segment: physical_ops_ai
+    thesis:
+      niche: Connected Operations Cloud that combines IoT sensors with AI for fleets, construction and field operations, built on a physical-world dataset few software firms have.
+      demand: Transport, construction, utilities and public-sector operations.
+      supply: Devices built by contract manufacturers, so tariffs and component costs matter.
+      leadership: Founders with a prior successful exit (Meraki).
+      product: Strong large-enterprise traction.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Samsara]
+    news_queries:
+      - {q: "Samsara IOT", lang: en}
+
+  - ticker: TEM
+    name: Tempus AI
+    market: US
+    segment: healthcare_ai
+    thesis:
+      niche: Multimodal clinical and molecular data library with AI diagnostics for oncology and cardiology, plus data licensing to pharma.
+      demand: Oncologists and hospital systems, plus pharma R&D data deals.
+      supply: Lab capacity, reimbursement from Medicare and insurers, and FDA approval.
+      leadership: Founder-led and growth-aggressive; sustained profitability is still being proven.
+      product: A large proprietary dataset, though the diagnostics market is competitive.
+    pillars: {leadership: 6, product: 7}
+    keywords: [Tempus]
+    news_queries:
+      - {q: "\"Tempus AI\"", lang: en}
+
+  - ticker: SDGR
+    name: Schrödinger
+    market: US
+    segment: scientific_ai
+    thesis:
+      niche: Physics-based molecular simulation combined with machine learning for drug and materials design; few peers match its physics accuracy.
+      demand: Pharma and biotech R&D budgets, plus materials science.
+      supply: HPC and GPU cloud compute.
+      leadership: Science-led team whose in-house drug pipeline results have been mixed.
+      product: Widely used software platform in computational chemistry.
+    pillars: {leadership: 6, product: 8}
+    keywords: [Schrödinger, Schrodinger, SDGR]
+    news_queries:
+      - {q: "Schrodinger SDGR", lang: en}
+
+  - ticker: VEEV
+    name: Veeva Systems
+    market: US
+    segment: life_sciences_cloud
+    thesis:
+      niche: Industry cloud for life sciences (CRM, clinical, regulatory and quality) that is adding AI agents on proprietary pharma workflows.
+      demand: Pharma commercial and R&D software budgets.
+      supply: Cloud infrastructure. It competes with Salesforce in life-sciences CRM.
+      leadership: Founder-led, profitable and disciplined; operates as a public benefit corporation.
+      product: Vertical niche with high switching costs and regulatory know-how.
+    pillars: {leadership: 8, product: 8}
+    keywords: [Veeva, VEEV]
+    news_queries:
+      - {q: "\"Veeva Systems\"", lang: en}

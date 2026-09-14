@@ -1,0 +1,150 @@
+# Industry structure: segments, external demand/supply nodes, supply-chain links
+# and the queries used to collect industry-wide news.
+#
+# Links read "source supplies target". Demand flows the opposite way:
+# enterprise AI adoption -> hyperscaler capex -> AI servers -> chips & components.
+
+segments:
+  foundry:
+    label: Foundry & Advanced Packaging
+    group: AI Chips & Foundry
+    keywords: [TSMC, foundry, CoWoS, wafer, advanced packaging, 晶圓, 先進封裝, 台積]
+  server_silicon:
+    label: Server Management Chips
+    group: AI Chips & Foundry
+    keywords: [BMC, server shipments, 伺服器出貨, 遠端管理晶片]
+  server_odm:
+    label: AI Server Assembly (ODM)
+    group: AI Servers
+    keywords: [AI server, server rack, ODM, GB200, GB300, Vera Rubin, AI 伺服器, 伺服器, 機櫃]
+  power_thermal:
+    label: Power & Thermal
+    group: Datacenter Infrastructure
+    keywords: [power supply, liquid cooling, thermal, cooling, power shelf, 散熱, 液冷, 電源]
+  networking:
+    label: Datacenter Networking
+    group: Datacenter Infrastructure
+    keywords: [data center switch, networking, 800G, 1.6T, Ethernet, 交換器]
+  materials:
+    label: PCB Materials & Substrates
+    group: Materials
+    keywords: [CCL, PCB, substrate, ABF, copper clad, 載板, 銅箔基板, 印刷電路板]
+  ai_platform:
+    label: Operational AI Platform
+    group: Enterprise AI Software
+    keywords: [AI platform, defense AI, government AI, enterprise AI adoption]
+  chip_design_software:
+    label: Chip Design Software (EDA)
+    group: AI Infrastructure Software
+    keywords: [EDA, chip design software, electronic design automation]
+  edge_network:
+    label: Edge Network & Inference
+    group: AI Infrastructure Software
+    keywords: [edge computing, AI inference, AI crawler, CDN]
+  ai_observability:
+    label: AI Observability
+    group: AI Infrastructure Software
+    keywords: [observability, cloud monitoring, LLM monitoring]
+  ai_security:
+    label: AI-Native Security
+    group: Security & Data Resilience
+    keywords: [cybersecurity, endpoint security, security breach, 資安]
+  data_security:
+    label: Cyber Resilience
+    group: Security & Data Resilience
+    keywords: [ransomware, data backup, cyber resilience, data security]
+  physical_ops_ai:
+    label: Physical Operations AI
+    group: Vertical AI Software
+    keywords: [fleet management, telematics, industrial IoT]
+  healthcare_ai:
+    label: Precision Medicine AI
+    group: Vertical AI Software
+    keywords: [precision medicine, genomic testing, oncology AI, AI diagnostics]
+  scientific_ai:
+    label: Molecular Design AI
+    group: Vertical AI Software
+    keywords: [computational drug discovery, molecular simulation, AI drug discovery]
+  life_sciences_cloud:
+    label: Life Sciences Cloud
+    group: Vertical AI Software
+    keywords: [life sciences software, pharma CRM, clinical trial software]
+
+external_nodes:
+  - id: hyperscalers
+    label: Hyperscalers & AI clouds
+    detail: Microsoft, Google, Amazon, Meta, Oracle, CoreWeave — their AI capex is the main demand signal for the hardware chain.
+  - id: accelerators
+    label: AI accelerator designers
+    detail: NVIDIA, AMD, Broadcom and hyperscaler custom ASIC teams.
+  - id: enterprises
+    label: Enterprises & governments adopting AI
+    detail: The end demand whose AI spending justifies cloud capex.
+  - id: life_sciences
+    label: Pharma, biotech & healthcare
+    detail: R&D and clinical budgets drive vertical AI software demand.
+
+# Words that mark an article as broad AI-infrastructure news (used by the keyword heuristic).
+general_ai_infra_keywords: [AI capex, data center, datacenter, hyperscaler, AI demand, AI spending, AI bubble, 資料中心, AI需求, AI 需求]
+
+links:
+  # Chip design & manufacturing
+  - {source: CDNS, target: accelerators, what: EDA tools and hardware emulation to design AI chips}
+  - {source: CDNS, target: "2330.TW", what: Design flows certified on leading-edge process nodes}
+  - {source: "2330.TW", target: accelerators, what: Leading-edge wafers and CoWoS packaging}
+  - {source: "2330.TW", target: "5274.TWO", what: Wafers for BMC chips}
+  - {source: "3037.TW", target: accelerators, what: ABF substrates for GPU/ASIC packages}
+  - {source: "2383.TW", target: accelerators, what: Low-loss CCL for GPU/ASIC baseboards}
+  # Server assembly
+  - {source: accelerators, target: "2317.TW", what: GPUs / ASIC modules for rack assembly}
+  - {source: accelerators, target: "2382.TW", what: GPUs / ASIC modules for rack assembly}
+  - {source: accelerators, target: "6669.TW", what: GPUs / ASIC modules for rack assembly}
+  - {source: "5274.TWO", target: "2317.TW", what: BMC chips on every server board}
+  - {source: "5274.TWO", target: "2382.TW", what: BMC chips on every server board}
+  - {source: "5274.TWO", target: "6669.TW", what: BMC chips on every server board}
+  - {source: "2383.TW", target: "2317.TW", what: CCL for server PCBs}
+  - {source: "2383.TW", target: "2345.TW", what: CCL for high-speed switch PCBs}
+  - {source: "2308.TW", target: "2317.TW", what: Power shelves and liquid cooling for racks}
+  - {source: "2308.TW", target: "2382.TW", what: Power shelves and liquid cooling for racks}
+  - {source: "2308.TW", target: hyperscalers, what: Datacenter power infrastructure}
+  - {source: "3017.TW", target: "2317.TW", what: Cold plates, CDUs and thermal modules}
+  - {source: "3017.TW", target: "2382.TW", what: Cold plates, CDUs and thermal modules}
+  - {source: "3017.TW", target: "6669.TW", what: Cold plates, CDUs and thermal modules}
+  - {source: "2345.TW", target: hyperscalers, what: 400G/800G data center switches}
+  - {source: "2317.TW", target: hyperscalers, what: Complete AI server racks}
+  - {source: "2382.TW", target: hyperscalers, what: Complete AI server racks}
+  - {source: "6669.TW", target: hyperscalers, what: Hyperscale rack servers and storage}
+  # Compute -> software
+  - {source: hyperscalers, target: PLTR, what: Cloud and AI compute}
+  - {source: hyperscalers, target: DDOG, what: Cloud infrastructure it monitors and runs on}
+  - {source: hyperscalers, target: CRWD, what: Cloud infrastructure}
+  - {source: hyperscalers, target: RBRK, what: Cloud infrastructure}
+  - {source: hyperscalers, target: IOT, what: Cloud infrastructure}
+  - {source: hyperscalers, target: TEM, what: Cloud and GPU compute}
+  - {source: hyperscalers, target: SDGR, what: HPC / GPU compute for simulations}
+  - {source: hyperscalers, target: VEEV, what: Cloud infrastructure}
+  - {source: accelerators, target: NET, what: GPUs for edge inference in its own fleet}
+  # Software -> end demand
+  - {source: PLTR, target: enterprises, what: Operational AI platform (AIP / Foundry / Gotham)}
+  - {source: NET, target: enterprises, what: Edge network, AI inference and bot control}
+  - {source: DDOG, target: enterprises, what: Observability for cloud and AI workloads}
+  - {source: CRWD, target: enterprises, what: Endpoint, cloud and AI security}
+  - {source: RBRK, target: enterprises, what: Cyber recovery and data security}
+  - {source: IOT, target: enterprises, what: Connected operations for fleets and field work}
+  - {source: TEM, target: life_sciences, what: AI diagnostics and clinical-molecular data}
+  - {source: SDGR, target: life_sciences, what: Physics + ML molecular design platform}
+  - {source: VEEV, target: life_sciences, what: Industry cloud and AI agents for pharma}
+  - {source: enterprises, target: hyperscalers, what: "Demand: AI spending that justifies capex"}
+
+# Industry-wide news queries (Google News). lang: en | zh
+queries:
+  - {q: "AI server demand Taiwan", lang: en}
+  - {q: "hyperscaler capex AI data center", lang: en}
+  - {q: "CoWoS capacity", lang: en}
+  - {q: "AI chip export controls", lang: en}
+  - {q: "Nvidia supply chain Taiwan", lang: en}
+  - {q: "enterprise AI software spending", lang: en}
+  - {q: "liquid cooling AI data center", lang: en}
+  - {q: "AI伺服器 出貨", lang: zh}
+  - {q: "CoWoS 產能", lang: zh}
+  - {q: "輝達 供應鏈", lang: zh}

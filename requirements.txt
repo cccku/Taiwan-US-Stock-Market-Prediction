@@ -1,0 +1,9 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+yfinance>=0.2.54
+anthropic>=0.70
+feedparser>=6.0
+PyYAML>=6.0
+requests>=2.31
+pydantic>=2.7
+pytest>=8.0
